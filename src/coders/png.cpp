@@ -150,13 +150,13 @@ ImageData* _png_load(const char* file){
     png_read_update_info( png_ptr, info_ptr );
     row_bytes = png_get_rowbytes( png_ptr, info_ptr );
     image_data = new png_byte[row_bytes * t_height];
-    if (!image_data) {
+    if (image_data == nullptr) {
         png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
         fclose(f);
         return nullptr;
     }
-    row_pointers = (png_bytepp) malloc( t_height * sizeof(png_bytep) );
-    if ( !row_pointers ) {
+    row_pointers = (png_bytepp) NULL;
+    if ( row_pointers == nullptr ) {
         png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
         delete[] image_data;
         fclose(f);
