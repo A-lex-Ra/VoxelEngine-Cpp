@@ -12,7 +12,12 @@ option(VOXELENGINE_BUILD_TESTS OFF)
 set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(src)
-add_executable(${PROJECT_NAME} src/voxel_engine.cpp)
+
+set(PYBIND11_FINDPYTHON ON)
+find_package(pybind11 REQUIRED)
+pybind11_add_module(${PROJECT_NAME} src/voxel_engine.cpp)
+#install(TARGETS ${PROJECT_NAME} DESTINATION ./lib)
+
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 if(VOXELENGINE_BUILD_APPDIR)
@@ -70,7 +75,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie -lstdc++fs")
 endif()
 
-target_link_libraries(${PROJECT_NAME} VoxelEngineSrc ${CMAKE_DL_LIBS})
+target_link_libraries(${PROJECT_NAME} PUBLIC VoxelEngineSrc ${CMAKE_DL_LIBS})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 

@@ -66,5 +66,6 @@ if(UNIX)
 endif()
 
 include_directories(${LUA_INCLUDE_DIR})
+target_compile_options(${PROJECT_NAME} PRIVATE -fPIC -fpic)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ZLIB::ZLIB ${VORBISLIB} ${PNGLIB} ${LUA_LIBRARIES} ${CMAKE_DL_LIBS})

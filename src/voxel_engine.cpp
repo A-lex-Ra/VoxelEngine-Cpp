@@ -1,3 +1,4 @@
+#include "pybind11/pybind11.h"
 #include "engine.hpp"
 #include "settings.hpp"
 #include "files/settings_io.hpp"
@@ -8,14 +9,16 @@
 
 #include <stdexcept>
 
+namespace py = pybind11;
+
 static debug::Logger logger("main");
 
-int main(int argc, char** argv) {
+int runmain() {
     debug::Logger::init("latest.log");
 
     EnginePaths paths;
-    if (!parse_cmdline(argc, argv, paths))
-        return EXIT_SUCCESS;
+    //if (!parse_cmdline(argc, argv, paths))
+    //    return EXIT_SUCCESS;
 
     platform::configure_encoding();
     try {
@@ -38,3 +41,10 @@ int main(int argc, char** argv) {
 #endif
     return EXIT_SUCCESS;
 }
+
+PYBIND11_MODULE(voxelcore, m) {
+    m.doc() = "pybind11 test VE plugin"; // optional module docstring
+
+    m.def("runmain", &runmain, "Try to run main function of VE");
+}
+
