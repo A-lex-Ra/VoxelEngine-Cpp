@@ -12,6 +12,7 @@ Documentation for release 0.28.
 - [Content-packs](content-packs.md)
 - [Engine usage recommendations](engine-use-recommendations.md)
 - [Item properties](item-properties.md)
+- [Entity properties](entity-properties.md)
 - [Particles](particles.md)
 - [Resources (resources.json)](resources.md)
 - [Rigging](rigging.md)
