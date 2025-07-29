@@ -227,6 +227,17 @@ void AssetsLoader::processPreloadConfigs(const Content* content) {
     }
 }
 
+static void add_variant(AssetsLoader& loader, const Variant& variant) {
+    if (!variant.model.name.empty() &&
+        variant.model.name.find(':') == std::string::npos) {
+        loader.add(
+            AssetType::MODEL,
+            MODELS_FOLDER + "/" + variant.model.name,
+            variant.model.name
+        );
+    }
+}
+
 void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
     loader.processPreloadConfigs(content);
     if (content) {
@@ -261,13 +272,12 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
             }
         }
         for (const auto& [_, def] : content->blocks.getDefs()) {
-            if (!def->model.name.empty() &&
-                def->model.name.find(':') == std::string::npos) {
-                loader.add(
-                    AssetType::MODEL,
-                    MODELS_FOLDER + "/" + def->model.name,
-                    def->model.name
-                );
+            if (def->variants) {
+                for (const auto& variant : def->variants->variants) {
+                    add_variant(loader, variant);
+                }
+            } else {
+                add_variant(loader, def->defaults);
             }
         }
         for (const auto& [_, def] : content->items.getDefs()) {

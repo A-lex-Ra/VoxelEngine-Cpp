@@ -87,10 +87,12 @@ ChunksRenderer::ChunksRenderer(
         level->content, cache, settings
     );
     logger.info() << "created " << threadPool.getWorkersCount() << " workers";
+    logger.info() << "memory consumption is " 
+        << renderer->getMemoryConsumption() * threadPool.getWorkersCount()
+        << " B";
 }
 
-ChunksRenderer::~ChunksRenderer() {
-}
+ChunksRenderer::~ChunksRenderer() = default;
 
 const Mesh<ChunkVertex>* ChunksRenderer::render(
     const std::shared_ptr<Chunk>& chunk, bool important
@@ -183,29 +185,47 @@ const Mesh<ChunkVertex>* ChunksRenderer::retrieveChunk(
 }
 
 void ChunksRenderer::drawChunksShadowsPass(
-    const Camera& camera, Shader& shader
+    const Camera& camera, Shader& shader, const Camera& playerCamera
 ) {
+    Frustum frustum;
+    frustum.update(camera.getProjView());
+
     const auto& atlas = assets.require<Atlas>("blocks");
 
     atlas.getTexture()->bind();
+
+    auto denseDistance = settings.graphics.denseRenderDistance.get();
+    auto denseDistance2 = denseDistance * denseDistance;
 
     for (const auto& chunk : chunks.getChunks()) {
         if (chunk == nullptr) {
             continue;
         }
+        glm::ivec2 pos {chunk->x, chunk->z};
         const auto& found = meshes.find({chunk->x, chunk->z});
         if (found == meshes.end()) {
             continue;
         }
-        auto mesh = found->second.mesh.get();
-        if (mesh) {
-            glm::vec3 coord(
-                chunk->x * CHUNK_W + 0.5f, 0.5f, chunk->z * CHUNK_D + 0.5f
-            );
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), coord);
-            shader.uniformMatrix("u_model", model);
-            mesh->draw();
+
+        glm::vec3 coord(
+            pos.x * CHUNK_W + 0.5f, 0.5f, pos.y * CHUNK_D + 0.5f
+        );
+
+        glm::vec3 min(chunk->x * CHUNK_W, chunk->bottom, chunk->z * CHUNK_D);
+        glm::vec3 max(
+            chunk->x * CHUNK_W + CHUNK_W,
+            chunk->top,
+            chunk->z * CHUNK_D + CHUNK_D
+        );
+
+        if (!frustum.isBoxVisible(min, max)) {
+            continue;
         }
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), coord);
+        shader.uniformMatrix("u_model", model);
+        found->second.mesh->draw(GL_TRIANGLES, 
+            glm::distance2(playerCamera.position * glm::vec3(1, 0, 1), 
+                           (min + max) * 0.5f * glm::vec3(1, 0, 1)) < denseDistance2);
     }
 }
 
@@ -242,6 +262,9 @@ void ChunksRenderer::drawChunks(
     visibleChunks = 0;
     shader.uniform1i("u_alphaClip", true);
 
+    auto denseDistance = settings.graphics.denseRenderDistance.get();
+    auto denseDistance2 = denseDistance * denseDistance;
+
     // TODO: minimize draw calls number
     for (int i = indices.size()-1; i >= 0; i--) {
         auto& chunk = chunks.getChunks()[indices[i].index];
@@ -253,7 +276,8 @@ void ChunksRenderer::drawChunks(
             );
             glm::mat4 model = glm::translate(glm::mat4(1.0f), coord);
             shader.uniformMatrix("u_model", model);
-            mesh->draw();
+            mesh->draw(GL_TRIANGLES, glm::distance2(camera.position * glm::vec3(1, 0, 1), 
+                (coord + glm::vec3(CHUNK_W * 0.5f, 0.0f, CHUNK_D * 0.5f))) < denseDistance2);
             visibleChunks++;
         }
     }

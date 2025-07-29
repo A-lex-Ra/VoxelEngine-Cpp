@@ -5,6 +5,7 @@
         "main",
         "lines",
         "entity",
+        "translucent",
         "background",
         "skybox_gen",
         "shadows"

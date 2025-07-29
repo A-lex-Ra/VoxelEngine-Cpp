@@ -20,3 +20,4 @@
 - [Скриптинг](scripting.md)
 - [Стили текста](text-styles.md)
 - [Частицы](particles.md)
+- [Формат моделей VCM](vcm.md)

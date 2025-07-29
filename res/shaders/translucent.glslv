@@ -30,11 +30,7 @@ void main() {
 
     mat4 viewmodel = u_view * u_model;
     a_distance = length(viewmodel * vec4(pos3d, 0.0));
-
-#ifndef ADVANCED_RENDER
     a_fog = calc_fog(length(viewmodel * vec4(pos3d * FOG_POS_SCALE, 0.0)) / 256.0);
-#endif
-
     a_emission = v_normal.w;
 
     vec4 viewmodelpos = u_view * a_modelpos;

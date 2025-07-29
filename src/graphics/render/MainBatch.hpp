@@ -77,9 +77,9 @@ public:
         buffer[index].color[2] = static_cast<uint8_t>(light.b * 255);
         buffer[index].color[3] = static_cast<uint8_t>(light.a * 255);
 
-        buffer[index].normal[0] = static_cast<uint8_t>(normal.x * 128 + 127);
-        buffer[index].normal[1] = static_cast<uint8_t>(normal.y * 128 + 127);
-        buffer[index].normal[2] = static_cast<uint8_t>(normal.z * 128 + 127);
+        buffer[index].normal[0] = static_cast<uint8_t>(normal.x * 127 + 128);
+        buffer[index].normal[1] = static_cast<uint8_t>(normal.y * 127 + 128);
+        buffer[index].normal[2] = static_cast<uint8_t>(normal.z * 127 + 128);
         buffer[index].normal[3] = static_cast<uint8_t>(emission * 255);
         index++;
     }

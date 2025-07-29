@@ -70,7 +70,7 @@ void ModelBatch::draw(
     const auto& vertexData = mesh.vertices.data();
 
     glm::vec4 lights(1, 1, 1, 0);
-    if (mesh.lighting) {
+    if (mesh.shading) {
         glm::vec3 gpos = matrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         gpos += lightsOffset;
         lights = MainBatch::sampleLight(gpos, chunks, backlight);
@@ -81,7 +81,7 @@ void ModelBatch::draw(
             const auto vert = vertexData[i * 3 + j];
             float d = 1.0f;
             auto norm = rotation * vert.normal;
-            if (mesh.lighting) {
+            if (mesh.shading) {
                 d = glm::dot(norm, SUN_VECTOR);
                 d = 0.8f + d * 0.2f;
             }
@@ -91,7 +91,7 @@ void ModelBatch::draw(
                 lights * d,
                 tint,
                 norm,
-                mesh.lighting ? 0.0f : 1.0f
+                mesh.shading ? 0.0f : 1.0f
             );
         }
     }

@@ -220,6 +220,7 @@ void EnginePaths::cleanup() {
         io::remove_device(entryPoint);
     }
     entryPoints.clear();
+    writeables.clear();
 }
 
 void EnginePaths::setEntryPoints(std::vector<PathsRoot> entryPoints) {

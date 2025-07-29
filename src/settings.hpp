@@ -81,6 +81,8 @@ struct GraphicsSettings {
     FlagSetting ssao {true};
     /// @brief Shadows quality
     IntegerSetting shadowsQuality {0, 0, 3};
+    /// @brief Dense render distance
+    IntegerSetting denseRenderDistance {56, 0, 10'000};
 };
 
 struct DebugSettings {

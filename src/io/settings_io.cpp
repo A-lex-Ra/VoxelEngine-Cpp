@@ -77,6 +77,7 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     builder.add("advanced-render", &settings.graphics.advancedRender);
     builder.add("ssao", &settings.graphics.ssao);
     builder.add("shadows-quality", &settings.graphics.shadowsQuality);
+    builder.add("dense-render-distance", &settings.graphics.denseRenderDistance);
 
     builder.section("ui");
     builder.add("language", &settings.ui.language);

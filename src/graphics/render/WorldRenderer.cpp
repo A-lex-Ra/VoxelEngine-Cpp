@@ -164,14 +164,14 @@ void WorldRenderer::setupWorldShader(
         auto inventory = player.getInventory();
         ItemStack& stack = inventory->getSlot(player.getChosenSlot());
         auto& item = indices->items.require(stack.getItemId());
-        float multiplier = 0.5f;
+        float multiplier = 0.75f;
         shader.uniform3f(
             "u_torchlightColor",
             item.emission[0] / 15.0f * multiplier,
             item.emission[1] / 15.0f * multiplier,
             item.emission[2] / 15.0f * multiplier
         );
-        shader.uniform1f("u_torchlightDistance", 6.0f);
+        shader.uniform1f("u_torchlightDistance", 8.0f);
     }
 }
 
@@ -220,8 +220,6 @@ void WorldRenderer::renderLevel(
     if (hudVisible) {
         renderLines(camera, linesShader, ctx);
     }
-    shader.use();
-    chunks->drawSortedMeshes(camera, shader);
 
     if (!pause) {
         scripting::on_frontend_render();
@@ -400,14 +398,13 @@ void WorldRenderer::generateShadowsMap(
     shadowCamera.setProjection(glm::ortho(min.x, max.x, min.y, max.y, 0.1f, 1000.0f));
 
     {
-        frustumCulling->update(shadowCamera.getProjView());
         auto sctx = pctx.sub();
         sctx.setDepthTest(true);
         sctx.setCullFace(true);
         sctx.setViewport({resolution, resolution});
         shadowMap.bind();
         setupWorldShader(shadowsShader, shadowCamera, settings, 0.0f);
-        chunks->drawChunksShadowsPass(shadowCamera, shadowsShader);
+        chunks->drawChunksShadowsPass(shadowCamera, shadowsShader, camera);
         shadowMap.unbind();
     }
 }
@@ -432,6 +429,7 @@ void WorldRenderer::draw(
 
     auto& mainShader = assets.require<Shader>("main");
     auto& entityShader = assets.require<Shader>("entity");
+    auto& translucentShader = assets.require<Shader>("translucent");
     auto& deferredShader = assets.require<PostEffect>("deferred_lighting").getShader();
     const auto& settings = engine.getSettings();
 
@@ -464,6 +462,7 @@ void WorldRenderer::draw(
         mainShader.recompile();
         entityShader.recompile();
         deferredShader.recompile();
+        translucentShader.recompile();
         prevCTShaderSettings = currentSettings;
     }
 
@@ -526,6 +525,7 @@ void WorldRenderer::draw(
     {
         DrawContext ctx = pctx.sub();
         ctx.setDepthTest(true);
+
         if (gbufferPipeline) {
             postProcessing.bindDepthBuffer();
         } else {
@@ -533,6 +533,16 @@ void WorldRenderer::draw(
         }
         // Drawing background sky plane
         skybox->draw(ctx, camera, assets, worldInfo.daytime, clouds);
+
+        {
+            auto sctx = ctx.sub();
+            sctx.setCullFace(true);
+            skybox->bind();
+            translucentShader.use();
+            setupWorldShader(translucentShader, camera, settings, fogFactor);
+            chunks->drawSortedMeshes(camera, translucentShader);
+            skybox->unbind();
+        }
 
         entityShader.use();
         setupWorldShader(entityShader, camera, settings, fogFactor);
@@ -553,8 +563,7 @@ void WorldRenderer::draw(
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     postProcessing.render(pctx, assets, timer, camera);
-
-    skybox->unbind();
+    
     if (player.currentCamera == player.fpCamera) {
         DrawContext ctx = pctx.sub();
         ctx.setDepthTest(true);
