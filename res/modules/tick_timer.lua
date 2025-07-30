@@ -31,7 +31,7 @@ function Timer.create(name, delay, repetitions, callback, ...)
         next_call_time = get_current_time() + delay,
         paused = false
     }
-    print("created timer: " .. timer.name)
+    -- print("created timer: " .. timer.name .. " with id " .. timer.id)
     active_timers:push(timer, timer.next_call_time)
     timer_id_counter = timer_id_counter + 1
     
@@ -54,8 +54,9 @@ function Timer.loop(delay, callback, ...)
 end
 
 -- executing what needs to be executed, deleting what needs to be deleted
-function on_update()
+function on_world_tick()
     local currentTime = get_current_time()
+    -- local start = os.clock()
     if active_timers:is_empty() then return end --unnecessary but cool
     local timer = active_timers:front()
 
@@ -81,6 +82,7 @@ function on_update()
     end
 
     tickCounter = tickCounter + 1
+    -- print("ticktimer tick time: " ..(os.clock() - start) )
 end
 
 
@@ -158,9 +160,12 @@ function Timer.remaining_time(id)
     return nil
 end
 
--- function Timer.destroy_all()
---     active_timers = PriorityQueue:new()
--- end
+function Timer.destroy_all()
+    active_timers = PriorityQueue:new()
+    paused_timers = {}
+    timer_id_counter = 0
+    tickCounter = 0
+end
 
 -- function Timer.get_active_timers_queue()
 --     return active_timers
