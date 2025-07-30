@@ -86,29 +86,29 @@ end
 
 
 function Timer.pause(id)
-  local timer = active_timers:get_by_id(id)
-  if timer then
-    timer.paused = true
-    timer.remaining_time = timer.next_call_time - get_current_time()
-    paused_timers[timer.id] = timer
-    active_timers:remove_by_id(id)
-    return true
-  end
-  return false
+    local timer = active_timers:get_by_id(id)
+    if timer then
+        timer.paused = true
+        timer.remaining_time = timer.next_call_time - get_current_time()
+        paused_timers[timer.id] = timer
+        active_timers:remove_by_id(id)
+        return true
+    end
+    return false
 end
 
 function Timer.resume(id)
-  local timer = paused_timers[id]
-  if timer then
-    timer.paused = false
-    local remaining = timer.remaining_time or timer.delay
-    timer.next_call_time = get_current_time() + remaining
-    timer.remaining_time = nil
-    active_timers:push(timer, timer.next_call_time)
-    paused_timers[id] = nil
-    return true
-  end
-  return false
+    local timer = paused_timers[id]
+    if timer then
+        timer.paused = false
+        local remaining = timer.remaining_time or timer.delay
+        timer.next_call_time = get_current_time() + remaining
+        timer.remaining_time = nil
+        active_timers:push(timer, timer.next_call_time)
+        paused_timers[id] = nil
+        return true
+    end
+    return false
 end
 
 function Timer.exists(id)
@@ -116,11 +116,11 @@ function Timer.exists(id)
 end
 
 function Timer.get_data(id)
-  local timer = active_timers:get_by_id(id) or paused_timers[id]
-  if timer then
-    return table.deep_copy(timer)
-  end
-  return nil
+    local timer = active_timers:get_by_id(id) or paused_timers[id]
+    if timer then
+        return table.deep_copy(timer)
+    end
+    return nil
 end
 
 function Timer.destroy(id)
@@ -150,11 +150,11 @@ end
 
 function Timer.remaining_time(id)
     if not Timer.is_paused(id) then
-      return Timer.time_to_next_call(id)
+        return Timer.time_to_next_call(id)
     end
     local timer = paused_timers[id]
     if timer and timer.remaining_time then
-      return timer.remaining_time
+        return timer.remaining_time
     end
     return nil
 end
