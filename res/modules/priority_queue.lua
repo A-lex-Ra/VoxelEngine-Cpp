@@ -118,7 +118,7 @@ function PriorityQueue:remove_by_id(item_id)
 end
 
 
--- Внутренние методы
+-- internal methods
 function PriorityQueue:_swap(i, j)
     local heap = self.heap
     heap[i], heap[j] = heap[j], heap[i]

@@ -1,7 +1,6 @@
 local PriorityQueue = require("priority_queue")
 
 local Timer = {}
-Timer.__index = Timer
 
 local active_timers = PriorityQueue:new()
 local paused_timers = {}
@@ -53,7 +52,7 @@ function Timer.loop(delay, callback, ...)
     return Timer.create("interval_timer_" .. get_current_time(), delay, "inf", callback, ...)
 end
 
--- executing what needs to be executed, deleting what needs to be deleted
+-- Timer processing logic: checks and executes due timers
 function on_world_tick()
     local currentTime = get_current_time()
     -- local start = os.clock()
