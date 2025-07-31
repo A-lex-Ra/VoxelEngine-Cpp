@@ -2,6 +2,9 @@ local PriorityQueue = require("priority_queue")
 
 local Timer = {}
 
+-- Global flag user should use to ensure that tick() is called exactly once per tick
+Timer.b_acquired_by_some_script = false
+
 local active_timers = PriorityQueue:new()
 local paused_timers = {}
 local timer_id_counter = 0
@@ -52,8 +55,9 @@ function Timer.loop(delay, callback, ...)
     return Timer.create("interval_timer_" .. get_current_time(), delay, "inf", callback, ...)
 end
 
--- Timer processing logic: checks and executes due timers
-function on_world_tick()
+-- Checks and executes due timers. Should be called exactly once per tick. Sets 'b_acquired_by_some_script' to true
+function Timer.tick()
+    Timer.b_acquired_by_some_script = true
     local currentTime = get_current_time()
     -- local start = os.clock()
     if active_timers:is_empty() then return end --unnecessary but cool
@@ -65,8 +69,7 @@ function on_world_tick()
         
         if not success then
             print("Timer error (" .. timer.name .. "): " .. err)
-            -- Optionally log the error to a file or system logger here
-            -- Optionally re-raise the error if you want to stop execution
+            -- re-raise the error if you want to stop execution
             -- error("Timer callback failed: " .. err)
         end
 
