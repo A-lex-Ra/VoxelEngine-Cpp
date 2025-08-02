@@ -5,6 +5,7 @@ function PriorityQueue:new()
     return setmetatable({ heap = {}, index_map = {} }, self)
 end
 
+-- Adds item to the queue. Item must have an "id" field.
 function PriorityQueue:push(item, priority)
     local node = { item = item, priority = priority }
     table.insert(self.heap, node)
@@ -53,6 +54,7 @@ function PriorityQueue:clear()
     self.heap = {}
 end
 
+-- Prints queue contents for debugging purposes
 function PriorityQueue:dump()
     print("PriorityQueue dump:")
     for i, node in ipairs(self.heap) do
@@ -83,8 +85,6 @@ function PriorityQueue:update_front_priority(new_priority)
 
     if new_priority > old_priority then
         self:_siftDown(1)
-    elseif new_priority < old_priority then
-        self:_siftUp(1)
     end
 end
 
@@ -112,7 +112,7 @@ function PriorityQueue:remove_by_id(item_id)
 
     local new_priority = last.priority
     self:_siftDown(index)
-    self:_siftUp(index) -- not really good but working
+    self:_siftUp(index) -- maybe an if/else and a single function call would be better instead of both siftUp & siftDown, but not sure
 
     return true
 end
